@@ -118,6 +118,7 @@ class GoogleFormGenerator:
                 format_data[data["label"]].append(data["value"])    
             elif data["label"] == "item_right_answer":
                 format_data[data["label"]].append(data["value"])    
+                format_data["item_answer"].append(data["value"])    
             elif data["label"] == "item_ignore":
                 format_data[data["label"]].append(data["value"])    
 

@@ -3,6 +3,7 @@ from streamlit_sparrow_labeling import st_sparrow_labeling as st_labeling
 from streamlit_sparrow_labeling import DataProcessor
 from streamlit_elements import elements, mui, html
 from modules.GoogleForm import GoogleFormGenerator
+from modules.DocumentConverter import DocumentConverter
 from modules.agstyler import PINLEFT
 from streamlit_elements import *
 from modules import agstyler
@@ -109,6 +110,28 @@ class DataReview:
                 return []
             return st.session_state['rects_file']
         
+        
+        def set_uploaded_file_name(self, uploaded_file_name):
+            if 'uploaded_file_name' not in st.session_state:
+                st.session_state['uploaded_file_name'] = []
+            st.session_state['uploaded_file_name'].append(uploaded_file_name)
+
+        def get_uploaded_file_name(self):
+            if 'uploaded_file_name' not in st.session_state:
+                return []
+            return st.session_state['uploaded_file_name']
+        
+        def set_uploaded_file_image(self, uploaded_file_image):
+            if 'uploaded_file_image' not in st.session_state:
+                st.session_state['uploaded_file_image'] = []
+            st.session_state['uploaded_file_image'].append(uploaded_file_image)
+
+        def get_uploaded_file_image(self):
+            if 'uploaded_file_image' not in st.session_state:
+                return []
+            return st.session_state['uploaded_file_image']
+    
+        
         file_name = None
         
         def set_file_name(self, file_name):
@@ -153,7 +176,7 @@ class DataReview:
             st.subheader(model.subheader_1)
             with st.form("upload-form", clear_on_submit=True):
                 uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=True,
-                                                 type=['png', 'jpg', 'jpeg'],
+                                                 type=['png', 'jpg', 'jpeg', 'pdf'],
                                                  help=model.upload_help,
                                                  key="uploaded_file" 
                                                 )
@@ -162,28 +185,23 @@ class DataReview:
                 if submitted and uploaded_file is not None:
                     with st.spinner('Wait for it...'):
                         ret = self.upload_file(model, uploaded_file)
-                    
                     if ret is not None:
                         index = model.get_index_select()
-                        file_names = self.get_existing_file_names(uploaded_file[index])
+                        file_names = model.get_uploaded_file_name()[0]
                         model.set_data_ret(ret)
                         model.set_file_name(file_names)
-                        model.set_image_file(uploaded_file[index])
+                        model.set_image_file(model.get_uploaded_file_image()[index])
                         model.set_data_result(model.get_data_ret()[index])
                         
                         
         if model.get_image_file() is not None:
-            docImg = Image.open(model.get_image_file())
+            docImg = model.get_image_file()
             data_processor = DataProcessor()
-            saved_state = model.get_data_result()            
-            doc_height = docImg.height
-            doc_width = docImg.width
-                
-
+            saved_state = model.get_data_result()                
         
             with placeholder_show.container():
                 assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
-                self.render_button(model, len(uploaded_file))                
+                self.render_button(model, len(model.get_uploaded_file_image()))                
                 mode = "transform" if assign_labels else "rect"
                 col1, col2 = st.columns([1, 1])
                 with col1:
@@ -241,12 +259,13 @@ class DataReview:
     
     def handChange(self, event, page, model):
         uploaded_file = st.session_state.uploaded_file
-        model.set_index_select(page - 1)        
-        index = model.get_index_select()
-        file_names = self.get_existing_file_names(uploaded_file[index])
-        model.set_file_name(file_names)
-        model.set_image_file(uploaded_file[index])
-        model.set_data_result(model.get_data_ret()[index])
+        if model.get_index_select() != (page-1):
+            model.set_index_select(page - 1)        
+            index = model.get_index_select()
+            file_names = model.get_uploaded_file_name()[0]
+            model.set_file_name(file_names)
+            model.set_image_file(model.get_uploaded_file_image()[index])
+            model.set_data_result(model.get_data_ret()[index])
         # st.experimental_rerun()
    
     def render_button(self, model, count):
@@ -511,10 +530,12 @@ class DataReview:
                         st.experimental_rerun()
 
 
-    def convert_image_to_label_json(self, model, image_data):
+    def convert_image_to_label_json(self, model, image_data, convert = True):
         output_json = {}
-
-        img = Image.open(image_data)
+        if convert:
+            img = Image.open(image_data)
+        else:
+            img = image_data
         img = np.asarray(img)
         image_height, image_width = img.shape[:2]
         orc_config = PaddleOCR(use_angle_cls=False, lang='en', rec=False)
@@ -583,21 +604,39 @@ class DataReview:
             shutil.rmtree(output_dir)
         for file in uploaded_file:
             if file is not None:
-                file_name = file.name.split(".")[0]
-                os.makedirs(output_dir, exist_ok=True)
-                output_path_file = os.path.join(output_dir, f"{file_name}.json")
-                output_json = self.convert_image_to_label_json(model, file)
-                
-                with open(output_path_file, "w") as f:
-                    json.dump(output_json, f, indent=4)
-                    data_return.append(output_json)
-                    st.toast(f"Done {file_name}")
-                    print("Done " + file_name)
-                    model.set_rects_file(output_path_file)
+                file_name, extension = file.name.split(".")
+                extension = extension.lower()
+                if file.type == 'application/pdf':
+                    doc = DocumentConverter()
+                    datas = doc.convert_pdf_to_images(file.read())
+                    for doc_name, doc_image in datas:
+                        os.makedirs(output_dir, exist_ok=True)
+                        model.set_uploaded_file_name(doc_name)
+                        model.set_uploaded_file_image(doc_image)
+                        output_path_file = os.path.join(output_dir, f"{doc_name}.json")
+                        output_json = self.convert_image_to_label_json(model, doc_image, False)
+                        with open(output_path_file, "w") as f:
+                            json.dump(output_json, f, indent=4)
+                            data_return.append(output_json)
+                            st.toast(f"Done {file_name}")
+                            print("Done " + file_name)
+                            model.set_rects_file(output_path_file)
+                    pass
+                if extension in ('png', 'jpg', 'jpeg'):
+                    os.makedirs(output_dir, exist_ok=True)
+                    output_path_file = os.path.join(output_dir, f"{file_name}.json")
+                    output_json = self.convert_image_to_label_json(model, file)
+                    model.set_uploaded_file_name(file_name)
+                    model.set_uploaded_file_image(Image.open(file))
+                    with open(output_path_file, "w") as f:
+                        json.dump(output_json, f, indent=4)
+                        data_return.append(output_json)
+                        st.toast(f"Done {file_name}")
+                        print("Done " + file_name)
+                        model.set_rects_file(output_path_file)
+                    pass
                     
         return data_return
-
-            # st.success("File uploaded successfully")
             
     
     def get_existing_file_names(self, uploaded_file):

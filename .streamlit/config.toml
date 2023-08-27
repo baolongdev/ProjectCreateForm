@@ -5,6 +5,7 @@ disableWatchdogWarning = true
 [runner]
 fastReruns = true
 [server]
+port=8090
 maxUploadSize = 500
 maxMessageSize = 500
 [browser]

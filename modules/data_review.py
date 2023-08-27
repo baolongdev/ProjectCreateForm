@@ -1,3 +1,4 @@
+import shutil
 from streamlit_sparrow_labeling import st_sparrow_labeling as st_labeling
 from streamlit_sparrow_labeling import DataProcessor
 from streamlit_elements import elements, mui, html
@@ -577,10 +578,12 @@ class DataReview:
                         
     def upload_file(self, model, uploaded_file):
         data_return = []
+        output_dir = os.path.join("assets", "data", "output")
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
         for file in uploaded_file:
             if file is not None:
                 file_name = file.name.split(".")[0]
-                output_dir = os.path.join("assets", "data", "output")
                 os.makedirs(output_dir, exist_ok=True)
                 output_path_file = os.path.join(output_dir, f"{file_name}.json")
                 output_json = self.convert_image_to_label_json(model, file)

@@ -14,5 +14,5 @@ def App(current_dir):
 if __name__ == '__main__':
     # add path main
     current_dir = Path(".")
-    InitPageSetting(st, current_dir, "doantruongctdnhotnews", "⭐")
+    InitPageSetting(st, current_dir, "Create Form", "⚙️")
     App(current_dir)

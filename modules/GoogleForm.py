@@ -60,7 +60,7 @@ class GoogleFormGenerator:
                             "question": {
                                 "required": required,
                                 "grading": {
-                                    "pointValue": 2,
+                                    "pointValue": 1,
                                     "correctAnswers": {
                                         "answers": [{"value": option} for option in data["item_right_answer"]],
                                     },

@@ -1,5 +1,10 @@
 [theme]
 base="light"
+[global]
+disableWatchdogWarning = true
+[runner]
+fastReruns = true
 [server]
+port = 8501
 maxUploadSize = 500
 maxMessageSize = 500

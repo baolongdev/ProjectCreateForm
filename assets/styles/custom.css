@@ -1,0 +1,8 @@
+.main__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.main__title {
+  margin-top: -40px;
+}

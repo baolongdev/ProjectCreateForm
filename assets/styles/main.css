@@ -1,0 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+* {
+  font-family: "Be Vietnam Pro" !important;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  /* color: white !important; */
+  font-weight: 500;
+}
+a:hover {
+  color: #d33682 !important;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+hr {
+  margin-top: 0;
+  margin-button: 0;
+}
+#MainMenu,
+footer,
+header,
+[data-testid="stSidebarNav"],
+.viewerBadge_link__qRIco {
+  visibility: hidden;
+  display: none;
+}
+.css-1kyxreq {
+  justify-content: center;
+}
+section > [data-testid="block-container"] {
+  padding: 2rem 3rem 10rem;
+  max-width: none;
+}
+/* div > [data-testid="block-container"] {
+  padding: 2rem 1rem 10rem;
+  max-width: none;
+} */
+
+.css-1544g2n {
+  padding: 0;
+  padding-top: 2rem;
+}
+/*=============== SCROLL BAR ===============*/
+::-webkit-scrollbar {
+  width: 0.6rem;
+  background: hsl(var(--hue), 4%, 53%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--hue), 4%, 29%);
+  border-radius: 0.5rem;
+}

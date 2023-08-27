@@ -5,6 +5,6 @@ disableWatchdogWarning = true
 [runner]
 fastReruns = true
 [server]
-port = 8501
+port = 8080
 maxUploadSize = 500
 maxMessageSize = 500

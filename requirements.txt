@@ -14,3 +14,4 @@ streamlit_img_label<=0.1.1
 streamlit_javascript<=0.1.5
 streamlit_sparrow_labeling<=0.1.1
 streamlit-aggrid<=0.3.4.post3
+paddle<=1.0.2

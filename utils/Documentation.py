@@ -1,10 +1,6 @@
-import json
-import math
 import streamlit as st
 from modules import *
 from pathlib import Path
-from PIL import Image
-from streamlit_img_label import st_img_label
 
 def sidebarConfig(sidebar):
     with sidebar:

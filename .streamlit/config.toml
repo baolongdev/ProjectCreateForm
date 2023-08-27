@@ -5,8 +5,7 @@ disableWatchdogWarning = true
 [runner]
 fastReruns = true
 [server]
-port = 80
 maxUploadSize = 500
 maxMessageSize = 500
 [browser]
-serverAddress = "projectcreateform.streamlit.app"
+serverAddress = "localhost"

@@ -34,9 +34,6 @@ class DataReview:
 
         labels = ["", "item_title", "item_question", "item_answer", "item_right_answer","item_ignore"]
 
-        # groups = ["", "items_row1", "items_row2", "items_row3", "items_row4", "items_row5", "items_row6", "items_row7",
-        #           "items_row8", "items_row9", "items_row10", "summary"]
-
         selected_field = "Selected Field: "
         save_text = "Save"
         saved_text = "Saved!"
@@ -538,7 +535,7 @@ class DataReview:
             img = image_data
         img = np.asarray(img)
         image_height, image_width = img.shape[:2]
-        orc_config = PaddleOCR(use_angle_cls=False, lang='en', rec=False)
+        orc_config = PaddleOCR(use_angle_cls=False, lang='vi', rec=False)
         result = orc_config.ocr(img, cls=False)    
         words = []
 

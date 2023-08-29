@@ -113,10 +113,7 @@ class DocumentProcess:
         
     
     def __init__(self) -> None:
-        self.convert_to_label = ExtractionDocument(
-            output="assets/data/output",
-            lang="vi"
-        )
+        self.convert_to_label = None
     
     def view(self, model, sidebar):
         with open(model.labels_file, "r") as f:
@@ -133,6 +130,11 @@ class DocumentProcess:
             createform = st.empty()
             st.subheader(model.subheader_1)
             name_group = st.text_input("name group")
+            with st.expander("Option"):
+                language_select = st.selectbox(
+                    "Select Language",
+                    ("English", "Vietnamese"),
+                )
             with st.form("upload-form", clear_on_submit=True):
                 uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=True,
                                                  type=['png', 'jpg', 'jpeg', 'pdf'],
@@ -143,7 +145,7 @@ class DocumentProcess:
                 
                 if submitted and uploaded_file is not None:
                     with st.spinner('Wait for it...'):
-                        self.upload_file(model, uploaded_file, name_group)
+                        self.upload_file(model, uploaded_file, name_group, language_select)
                     
                     index = model.get_index_select()
                     model.set_image_file(model.get_uploaded_file_images()[index])
@@ -153,18 +155,19 @@ class DocumentProcess:
             docImg = model.get_image_file()
             data_processor = DataProcessor()
             saved_state = model.get_data_result()   
-            
+            print(model.get_rects_file())
             with placeholder_show.container():
                 assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
                 self.render_button(model, len(model.get_uploaded_file_images()))
                 mode = "transform" if assign_labels else "rect"
+                
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    result_rects = self.render_doc(docImg, saved_state, mode)
+                    result_rects = self.render_doc(model, docImg, saved_state, mode)
     
     
     
-    def render_doc(self, docImg, saved_state, mode, height = 905, width = 640):
+    def render_doc(self, model, docImg, saved_state, mode, height = 905, width = 640):
         with st.container():
             result_rects = st_labeling(
                 fill_color = "rgba(0, 151, 255, 0.3)",
@@ -177,10 +180,8 @@ class DocumentProcess:
                 drawing_mode = mode,
                 display_toolbar = True,
                 update_streamlit = True,
-                # doc_height=3509,
-                # doc_width=2480,
-                doc_height=height+100,
-                doc_width=width+370,
+                doc_height=3509,
+                doc_width=2480,
                 # image_rescale = True,
                 key="doc_annotation",               
             )
@@ -207,7 +208,15 @@ class DocumentProcess:
             )
                 
             
-    def upload_file(self, model, uploaded_file, name_group = None):
+    def upload_file(self, model, uploaded_file, name_group = None, language_select = 'en'):
+        language = {
+            "Vietnamese":"vi",
+            "English":"en"    
+        }
+        self.convert_to_label = ExtractionDocument(
+            output="assets/data/output",
+            lang=language[language_select]
+        )
         if name_group is None:
             name_group = "demo"
         _return = []
@@ -223,24 +232,24 @@ class DocumentProcess:
                     doc = DocumentConverter()
                     datas = doc.convert_pdf_to_images(file.read())
                     for doc_name, doc_image in datas:
-                        self.convert_to_label.add_label(image_data=doc_image)
+                        self.convert_to_label.add_label_with_PaddleOCR(image_data=doc_image)
                         image = self.convert_to_label.get_data()["image_raw"]
                         datafile = self.convert_to_label.get_data()["datafile"]
-                        res_0 = self.convert_to_label.get_data()["res_0"]
+                        # res_0 = self.convert_to_label.get_data()["res_0"]
                         model.set_uploaded_file_images(image)
                         model.set_rects_file(datafile)
                         st.toast(f"Done {count}")
                         print("Done {count}")
                         count+=1
                 if extension in ('png', 'jpg', 'jpeg'):
-                    self.convert_to_label.add_label(image_data=file)
+                    self.convert_to_label.add_label_with_PaddleOCR(image_data=file)
                     image = self.convert_to_label.get_data()["image_raw"]
                     datafile = self.convert_to_label.get_data()["datafile"]
-                    res_0 = self.convert_to_label.get_data()["res_0"]
+                    # res_0 = self.convert_to_label.get_data()["res_0"]
                     model.set_uploaded_file_images(image)
                     model.set_rects_file(datafile)
                     st.toast(f"Done {count}")
-                    print("Done {count}")
+                    print(f"Done {count}")
             count += 1
             
                         

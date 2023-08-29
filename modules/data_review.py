@@ -1,9 +1,6 @@
-import shutil
 from streamlit_sparrow_labeling import st_sparrow_labeling as st_labeling
 from streamlit_sparrow_labeling import DataProcessor
 from streamlit_elements import elements, mui, html
-from modules.GoogleForm import GoogleFormGenerator
-from modules.DocumentConverter import DocumentConverter
 from modules.agstyler import PINLEFT
 from streamlit_elements import *
 from modules import agstyler
@@ -12,13 +9,14 @@ import streamlit as st
 from PIL import Image
 import pandas as pd
 import numpy as np
-import math
+import shutil
 import json
 import os
 # =========================
-from apiclient import discovery
-from httplib2 import Http
-from oauth2client import client, file, tools
+from modules.ExtractionDocument import ExtractionDocument
+from modules.GoogleForm import GoogleFormGenerator
+from modules.DocumentConverter import DocumentConverter
+
 
 
 class DataReview: 
@@ -253,7 +251,6 @@ class DataReview:
                         st.markdown(f"Link form: [Link 😘]({form_generator.get_link_form()})" )
 
     
-    
     def handChange(self, event, page, model):
         uploaded_file = st.session_state.uploaded_file
         if model.get_index_select() != (page-1):
@@ -274,8 +271,7 @@ class DataReview:
                 color="primary",
                 defaultPage=model.get_index_select()+1
             )
-            # page = 0
-            # mui.Typography(f"Page {page}")
+            
         
         
     def render_doc(self, docImg, saved_state, mode, height = 905, width = 640):

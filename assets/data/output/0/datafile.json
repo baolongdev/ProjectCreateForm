@@ -1,0 +1,583 @@
+{
+    "meta": {
+        "version": "v1.0",
+        "split": "-",
+        "image_id": 0,
+        "image_size": {
+            "width": 3509,
+            "height": 2480
+        }
+    },
+    "words": [
+        {
+            "bbox": [
+                507.0,
+                100.0,
+                2195.0,
+                150.0
+            ],
+            "text": "\u0110\u1ec2 C\u01af\u01a0NG \u00d4N T\u1eacP KI\u1ebeM TR\u1ea2 \u0110\u00c1NH GIA GI\u1eeeA KIT",
+            "label": "item_title"
+        },
+        {
+            "bbox": [
+                1016.0,
+                210.0,
+                1682.0,
+                273.0
+            ],
+            "text": "M\u00d4N C\u00d4NG NGH\u1ec0 11",
+            "label": "item_title"
+        },
+        {
+            "bbox": [
+                503.0,
+                99.0,
+                1801.0,
+                157.0
+            ],
+            "text": "\u0110\u1ec2 C\u01af\u01a0NG \u00d4N T\u00c1P KI\u1ec2M TR\u1ea2 \u0110\u00c1NH GI",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                1013.0,
+                208.0,
+                1688.0,
+                276.0
+            ],
+            "text": "M\u00d4N C\u00d4NG NGH\u1ec0 11",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                981.0,
+                331.0,
+                1653.0,
+                389.0
+            ],
+            "text": "N\u0102M H\u1eccC 2022?2023",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                387.0,
+                409.0,
+                922.0,
+                474.0
+            ],
+            "text": "PH\u1ea6N TR\u1eaeC NGHI\u1ec6M",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                253.0,
+                423.0,
+                285.0,
+                460.0
+            ],
+            "text": "0300000009",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                487.0,
+                837.0,
+                553.0
+            ],
+            "text": "C\u00e2u 1: Ch\u1ecdn ph\u00e1t bi\u1ec3u \u0111\u00fang:",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                249.0,
+                556.0,
+                1509.0,
+                631.0
+            ],
+            "text": "A. \u0110i\u1ec3m ch\u1ebft l\u00e0 v\u1ecb tr\u00ed m\u00e0 t\u1ea1i \u0111\u00f3 pit-t\u00f4ng \u0111\u1ed5i chi\u1ec1u chuy\u1ec3n \u0111\u1ed9ng",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                250.0,
+                638.0,
+                1741.0,
+                696.0
+            ],
+            "text": "B. \u0110i\u1ec3m ch\u1ebft tr\u00ean l\u00e0 \u0111i\u1ec3m ch\u1ebft m\u00e0 t\u1ea1i \u0111\u00f3 pit-t\u00f4ng \u1edf xa t\u00e2m tr\u1ee5c khu\u1ef7u nh\u1ea5t",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                250.0,
+                716.0,
+                1780.0,
+                774.0
+            ],
+            "text": "C. \u0110i\u1ec3m ch\u1ebft d\u01b0\u1edbi l\u00e0 \u0111i\u1ec3m ch\u1ebft m\u00e0 t\u1ea1i \u0111\u00f3 pit-t\u00f4ng \u1edf g\u1ea7n t\u00e2m tr\u1ee5c khu\u1ef7u nh\u1ea5t",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                253.0,
+                795.0,
+                636.0,
+                843.0
+            ],
+            "text": "D. C\u1ea3 3 \u0111\u00e1p \u00e1n tr\u00ean",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                250.0,
+                867.0,
+                1259.0,
+                925.0
+            ],
+            "text": "C\u00e2u 2: H\u00e0nh tr\u00ecnh pit-t\u00f4ng l\u00e0? Ch\u1ecdn ph\u00e1t bi\u00eau sai:",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                938.0,
+                1812.0,
+                1000.0
+            ],
+            "text": "A L\u00e0 qu\u00e3ng \u0111\u01b0\u1eddng m\u00e0 pit-t\u00f4ng \u0111i \u0111\u01b0\u1ee3c t\u1eeb \u0111i\u1ec3m ch\u1ebft tr\u00ean xu\u1ed1ng \u0111i\u1ec3m ch\u1ebft d\u01b0",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                250.0,
+                1013.0,
+                1776.0,
+                1071.0
+            ],
+            "text": "B. L\u00e0 qu\u00e3ng \u0111\u01b0\u1eddng m\u00e0 pit-t\u00f4ng \u0111i \u0111\u01b0\u1ee3c t\u1eeb \u0111i\u1ec3m ch\u1ebft d\u01b0\u1edbi l\u00ean \u0111i\u1ec3m ch\u1ebft tr\u00ean th\u1ebf tri\u1ec7n",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                249.0,
+                1088.0,
+                1453.0,
+                1150.0
+            ],
+            "text": "C. L\u00e0 qu\u00e3ng \u0111\u01b0\u1eddng m\u00e0 pit-t\u00f4ng \u0111i \u0111\u01b0\u1ee3c trong m\u1ed9t chu tr\u00ecnh",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1163.0,
+                1312.0,
+                1225.0
+            ],
+            "text": "D. L\u00e0 qu\u0103ng \u0111\u01b0\u1eddng m\u00e0 pit-t\u00f4ng \u0111i \u0111\u01b0\u1ee3c trong m\u1ed9t k\u00ec",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1238.0,
+                1783.0,
+                1300.0
+            ],
+            "text": "C\u00e2u 3: Quan h\u1ec7 gi\u1eefa h\u00e0nh tr\u00ecnh pit-t\u00f4ng v\u00e0 b\u00e1n k\u00ednh quay c\u1ee7a tr\u1ee5c khu\u1ef7u l\u00e0 nhau",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1320.0,
+                415.0,
+                1372.0
+            ],
+            "text": "A.S-R",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                693.0,
+                1320.0,
+                943.0,
+                1378.0
+            ],
+            "text": "B.S-1/R",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1392.0,
+                439.0,
+                1450.0
+            ],
+            "text": "C.S-2R",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                696.0,
+                1399.0,
+                939.0,
+                1447.0
+            ],
+            "text": "D.S-R2",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                250.0,
+                1467.0,
+                1811.0,
+                1525.0
+            ],
+            "text": "C\u00e2u 4: Quan h\u1ec7 gi\u1eefa th\u1ebf t\u00edch to\u00e0n ph\u00e2n, th\u1ebf t\u00edch c\u00f4ng t\u00e1c v\u00e0 th\u1ebf t\u00edch bu\u00f4ng ch",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1535.0,
+                598.0,
+                1601.0
+            ],
+            "text": "A. Vet - Vtp - Vbc",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1614.0,
+                594.0,
+                1672.0
+            ],
+            "text": "B. Vtp - Vct - Vbc",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1685.0,
+                591.0,
+                1754.0
+            ],
+            "text": "C. Vtp - Vbc - Vct",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1767.0,
+                591.0,
+                1825.0
+            ],
+            "text": "D. Vct - Vtp. Vbc",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1836.0,
+                1418.0,
+                1901.0
+            ],
+            "text": "C\u00e2u 5: Chu tr\u00ecnh l\u00e0m vi\u1ec7c c\u1ee7a \u0111\u1ed9ng c\u01a1 g\u1ed3m c\u00e1c qu\u00e1 tr\u00ecnh:",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                253.0,
+                1918.0,
+                703.0,
+                1965.0
+            ],
+            "text": "A. Nap, n\u00e9n, ch\u00e1v, th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                1989.0,
+                749.0,
+                2051.0
+            ],
+            "text": "B. Nap, n\u00e9n, d\u00e3n n\u1edf, th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2068.0,
+                591.0,
+                2126.0
+            ],
+            "text": "C. N\u1ea1p, n\u00e9n, th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                253.0,
+                2146.0,
+                893.0,
+                2194.0
+            ],
+            "text": "D. N\u1ea1p, n\u00e9n, ch\u00e1y ? d\u00e3n n\u1edf, th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2211.0,
+                1351.0,
+                2276.0
+            ],
+            "text": "C\u00e2u 6: \u1ede \u0111\u1ed9ng c\u01a1 \u0111i\u00eazen 4 k\u00ec, xupap n\u1ea1p m\u1edf \u1edf k\u00ec n\u00e0o?",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2293.0,
+                401.0,
+                2344.0
+            ],
+            "text": "A. K\u00ec 1",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                999.0,
+                2296.0,
+                1154.0,
+                2344.0
+            ],
+            "text": "B. K\u00ec 2",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2368.0,
+                397.0,
+                2419.0
+            ],
+            "text": "C. K\u00ec 3",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                999.0,
+                2368.0,
+                1161.0,
+                2419.0
+            ],
+            "text": "D. K\u00ec 4",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2436.0,
+                1323.0,
+                2501.0
+            ],
+            "text": "C\u00e2u 7: \u1ede \u0111\u1ed9ng c\u01a1 x\u0103ng 4 k\u00ec, xupap th\u1ea3i m\u1edf \u1edf k\u00ec n\u00e0o?",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                248.0,
+                2507.0,
+                448.0,
+                2577.0
+            ],
+            "text": "K\u00ec n\u1ea1p",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                999.0,
+                2518.0,
+                1203.0,
+                2566.0
+            ],
+            "text": "B. K\u00ec n\u00e9n",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2582.0,
+                655.0,
+                2655.0
+            ],
+            "text": "C. K\u00ec ch\u00e1y ? d\u00e3n n\u1edf",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                995.0,
+                2590.0,
+                1213.0,
+                2648.0
+            ],
+            "text": "D. K\u00ec th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2661.0,
+                848.0,
+                2730.0
+            ],
+            "text": "C\u00e2u 8: \u0110\u1ed9ng c\u01a1 x\u0103ng 2 k\u00ec c\u00f3:",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2736.0,
+                483.0,
+                2806.0
+            ],
+            "text": "A. C\u1eeda n\u1ea1p",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                999.0,
+                2747.0,
+                1235.0,
+                2795.0
+            ],
+            "text": "B. C\u1eeda th\u1ea3i",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2815.0,
+                492.0,
+                2873.0
+            ],
+            "text": "C. C\u1eeda qu\u00e9t",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                995.0,
+                2815.0,
+                1400.0,
+                2877.0
+            ],
+            "text": "D. C\u1ea3 3 \u0111\u00e1p \u00e1n tr\u00ean",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2887.0,
+                1646.0,
+                2952.0
+            ],
+            "text": "C\u00e2u 9: Chi ti\u1ebft n\u00e0o sau \u0111\u00e2y kh\u00f4ng thu\u1ed9c c\u1ea5u t\u1ea1o \u0111\u1ed9ng c\u01a1 \u0111i\u00eazen 4 k\u00ec?",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                2957.0,
+                416.0,
+                3028.0
+            ],
+            "text": "A. Bugi",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                991.0,
+                2961.0,
+                1232.0,
+                3031.0
+            ],
+            "text": "B. Pit-t\u00f4ng",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                3033.0,
+                542.0,
+                3106.0
+            ],
+            "text": "C. Tr\u1ee5c khu\u1ef7u",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                999.0,
+                3044.0,
+                1259.0,
+                3102.0
+            ],
+            "text": "D. V\u00f2i phun",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                3112.0,
+                1671.0,
+                3177.0
+            ],
+            "text": "C\u00e2u 10: Pit-t\u00f4ng \u0111\u01b0\u1ee3c tr\u1ee5c khu\u1ef3u d\u1eabn \u0111\u1ed9ng \u1edf k\u00ec n\u00e0o? Chon \u0111\u00e1p \u00e1n sai",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                3182.0,
+                451.0,
+                3253.0
+            ],
+            "text": "K\u00ec n\u1ea1p",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                994.0,
+                3186.0,
+                1207.0,
+                3253.0
+            ],
+            "text": "B. K\u00ec n\u00e9n",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                246.0,
+                3262.0,
+                651.0,
+                3324.0
+            ],
+            "text": "C. K\u00ec ch\u00e1y - d\u00e3n n\u1edf",
+            "label": "item_text"
+        },
+        {
+            "bbox": [
+                995.0,
+                3266.0,
+                1210.0,
+                3324.0
+            ],
+            "text": "D. K\u00ec th\u1ea3i",
+            "label": "item_text"
+        }
+    ]
+}

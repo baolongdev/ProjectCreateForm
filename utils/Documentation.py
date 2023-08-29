@@ -17,7 +17,8 @@ def customsGroup(current_dir):
 
 
 def main(sidebar):
-    DataReview().view(DataReview.Model(), sidebar)
+    DocumentProcess().view(DocumentProcess.Model(), sidebar)
+    # DataReview().view(DataReview.Model(), sidebar)
 
 def Documentation(sidebar):
     current_dir = Path(".")

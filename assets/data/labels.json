@@ -18,6 +18,14 @@
       },
       {
         "id": 5,
+        "name": "item_table"
+      },
+      {
+        "id": 6,
+        "name": "item_figure"
+      },
+      {
+        "id": 7,
         "name": "item_ignore"
       }
     ]

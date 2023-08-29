@@ -1,15 +1,10 @@
-import shutil
-from docx2txt import process
 from PIL import Image
 import fitz
-import os
-import io
 
 
 class DocumentConverter:
     def __init__(self):
         self.images = []
-        self.output_dir = "./images"
         pass
             
 

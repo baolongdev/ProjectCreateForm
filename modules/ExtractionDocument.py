@@ -1,0 +1,208 @@
+import os
+import numpy as np
+from paddleocr import PPStructure, save_structure_res
+from PIL import Image, ImageDraw
+from vietocr.tool.predictor import Predictor
+from vietocr.tool.config import Cfg
+import json
+
+
+class ExtractionDocument():
+    def __init__(
+        self,
+        output="./output",
+        group="",
+        element="",
+        ocr = True,
+        table=True,
+        image_orientation=True,
+        lang='en',
+    ):
+        self.save_folder = output
+        self.save_folder_group = group
+        self.save_folder_element = element
+        self.pathfile_result = os.path.join(self.save_folder, self.save_folder_group)
+        self.datafile = {"words":[]}
+        self.result = None
+        self.image = None
+        self.image_raw = None
+        self.lang = lang
+        if self.lang == "vi":
+            self.config_vietocr = Cfg.load_config_from_name('vgg_transformer')
+            self.config_vietocr['cnn']['pretrained']=False
+            self.config_vietocr['device'] = 'cpu'
+            self.detector_vietocr = Predictor(self.config_vietocr)
+        
+        self.process = PPStructure(
+            show_log=False, 
+            ocr=ocr, # Text
+            table=table, # Table 
+            image_orientation=image_orientation, # Image 
+            lang='en'
+        )
+    
+    
+    def save_result(self):
+        save_structure_res(self.result, self.pathfile_result, self.save_folder_element)
+        self.image.save(os.path.join(self.pathfile_result, self.save_folder_element, "output_image.png"))
+        
+
+    def add_label(self, image_data=None):
+        if type(image_data) != Image.Image:
+            self.image = Image.open(image_data)
+        else:
+            self.image = image_data
+        self.image_raw = self.image
+        output_directory = os.path.join(self.pathfile_result, self.save_folder_element)
+        os.makedirs(output_directory, exist_ok=True)
+        self.image.save(os.path.join(output_directory, "raw.png"))
+        self.image = np.asarray(self.image)
+        self.result = self.process(self.image)
+        self.read_result()
+        self.convert_to_datafile()
+        self.save_result()
+        
+    def draw_bbox(self, bbox, color = "black"):
+        if type(self.image) != Image.Image:
+            self.image = Image.fromarray(self.image)
+        draw = ImageDraw.Draw(self.image)
+        draw.rectangle(bbox, outline=color, width=3)
+        
+                
+        
+    def read_result(self) -> None:
+        color = {
+            "title": "red",
+            "list": "green",
+            "text": "yellow",
+            "table": "blue",
+            "figure": "orange",
+        }
+
+        for item in self.result:
+            type = item["type"]
+            bbox = item["bbox"]
+            self.draw_bbox(bbox, color.get(type, "white"))  # Sử dụng màu mặc định nếu không xác định màu
+            if type in ["text", "title", "list"]:
+                self.read_result_child(item.get("res", []))
+    
+    def convert_to_datafile(self):
+        image_height, image_width = self.image.size
+        self.datafile = {
+            "meta": {
+                "version": "v1.0",
+                "split": "-",
+                "image_id": 0,
+                "image_size": {
+                    "width": image_width,
+                    "height": image_height
+                }
+            },    
+            "words":[]
+        }
+        for item in self.result:
+            type = item["type"]
+            bbox = item["bbox"]
+            if type in ["text", "title", "list"]:
+                for child in item["res"]:
+                    if type in ["text", "list"]:
+                        type = "text"
+                    bbox = self.convert_text_region_to_bbox(child["text_region"])
+                    self.datafile["words"].append(
+                        {
+                            "rect": {
+                                "x1": bbox[0],
+                                "y1": bbox[1],
+                                "x2": bbox[2],
+                                "y2": bbox[3]
+                            },
+                            "value": child["text"],
+                            "label": f"item_{type}",
+                        }
+                    )
+            if type in ["table", "figure"]:
+                if type == "table":
+                    filename = f"{bbox}_0.xlsx"
+                elif type == "figure":
+                    filename = f"{bbox}_0.jpg"
+                self.datafile["words"].append(
+                    {
+                        "rect": {
+                            "x1": bbox[0],
+                            "y1": bbox[1],
+                            "x2": bbox[2],
+                            "y2": bbox[3]
+                        },
+                        "value": type,
+                        "label": f"item_{type}",
+                        "link": os.path.join(self.pathfile_result, self.save_folder_element, filename),
+                    }
+                )
+        output_directory = os.path.join(self.pathfile_result, self.save_folder_element)
+        os.makedirs(output_directory, exist_ok=True)
+        with open(os.path.join(output_directory, "datafile.json"), 'w') as file:
+            json.dump(self.datafile, file)
+             
+    
+    def convert_text_region_to_bbox(self, text_region):
+        if len(text_region) >= 4:
+            x_coords = [point[0] for point in text_region]
+            y_coords = [point[1] for point in text_region]
+            bbox = [
+                min(x_coords),  # X của góc trái trên cùng
+                min(y_coords),  # Y của góc trái trên cùng
+                max(x_coords),  # X của góc dưới cùng bên phải
+                max(y_coords)   # Y của góc dưới cùng bên phải
+            ]
+        else:
+            bbox = [0, 0, 0, 0]  # Hoặc bạn có thể xác định một giá trị mặc định khác
+        print(bbox)
+        return bbox
+    
+    
+    def crop_image(self, bbox):
+        img = self.image
+        cropped_img = img.crop(bbox)
+        return cropped_img
+     
+    
+    def read_result_child(self, data=None) -> None:
+        color = {
+            "title": "red",
+            "list": "green",
+            "text": "yellow",
+            "table": "blue",
+            "figure": "orange",
+        }
+
+        for item in data:
+            bbox = self.convert_text_region_to_bbox(item["text_region"])
+            self.draw_bbox(bbox, "black")  # Sử dụng màu mặc định nếu không xác định màu
+            if self.lang == 'vi':
+                img_crop = self.crop_image(bbox)
+                text = self.detector_vietocr.predict(img_crop)
+                item["text"] = text
+    
+    def get_data(self):
+        _return = {
+            "path": os.path.join(self.pathfile_result, self.save_folder_element),
+            "image": self.image,
+            "image_raw": self.image_raw,
+            "datafile": os.path.join(self.pathfile_result, self.save_folder_element, "datafile.json"),
+            "res_0": "",
+        }
+        return _return
+
+
+    def set_save_folder_group(self, group):
+        self.save_folder_group = str(group)
+        self.pathfile_result = os.path.join(self.save_folder, self.save_folder_group)
+    def set_save_folder_element(self, element):
+        self.save_folder_element = str(element)
+        
+# ExtractionDocument(
+#     group="demo",
+#     element="page_1",
+#     lang="vi"
+# ).add_label(image_data="main\paper-image.jpg")
+# ExtractionDocument(lang="vi").add_label(image_data="main\paper-image.jpg")

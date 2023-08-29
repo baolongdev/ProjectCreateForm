@@ -15,11 +15,17 @@ class GoogleFormGenerator:
         self.form_service = None
         self.form_id = None
         self.description = """
+        
         Form này được tạo bảo blong đẹp trai không được cãi
         Cảm ơn bạn vì đã sử dụng tool của mình
         I <3 U
         ================
         """
+        # ========================
+        self.required = True
+        self.shuffle = True
+        
+        
                 
     def authenticate(self):
         if not self.creds or self.creds.invalid:
@@ -28,13 +34,16 @@ class GoogleFormGenerator:
             self.form_service = discovery.build('forms', 'v1', http=self.creds.authorize(Http()), discoveryServiceUrl=self.DISCOVERY_DOC, static_discovery=False)
 
 
-    def setting_configure(self, is_quiz = False):
+    def setting_configure(self, is_quiz = True, is_required = True, is_shuffle = True):
+        self.quiz = is_quiz
+        self.required = is_required
+        self.shuffle = is_shuffle
         update = {"requests": [
             {
                 "updateSettings": {
                     "settings": {
                         "quizSettings": {
-                            "isQuiz": is_quiz
+                            "isQuiz": self.quiz
                         },
                     },
                     "updateMask": "quizSettings.isQuiz"
@@ -50,7 +59,7 @@ class GoogleFormGenerator:
         except Exception as e:
             print(f"Error updating Google Form: {str(e)}")
 
-    def convert_to_format(self, data, required=True, shuffle=True):
+    def convert_to_format(self, data):
         update = {
             "requests": [{
                 "createItem": {
@@ -58,7 +67,7 @@ class GoogleFormGenerator:
                         "title": data["title"],
                         "questionItem": {
                             "question": {
-                                "required": required,
+                                "required": self.required,
                                 "grading": {
                                     "pointValue": 1,
                                     "correctAnswers": {
@@ -70,7 +79,7 @@ class GoogleFormGenerator:
                                 "choiceQuestion": {
                                     "type": "RADIO",
                                     "options": [{"value": option} for option in data["item_answer"]],
-                                    'shuffle': shuffle
+                                    'shuffle': self.shuffle
                                 }
                             }
                         }

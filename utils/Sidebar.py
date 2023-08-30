@@ -32,7 +32,10 @@ def Sidebar(current_dir):
     }
     with selected_page:
         st.selectbox("Select a page", page_names_to_funcs.keys(), key ="select_page")
-    st.experimental_set_query_params(
-        page=st.session_state.select_page
-    )
-    page_names_to_funcs[st.experimental_get_query_params()["page"][0]](sidebar_container)
+    # st.experimental_set_query_params(
+    #     page=st.session_state.select_page
+    # )
+    link = st.experimental_get_query_params()["page"][0]
+    if link is not None:
+        link = "🔥Documentation"
+    page_names_to_funcs[link](sidebar_container)

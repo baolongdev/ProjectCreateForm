@@ -148,11 +148,11 @@ class DocumentProcess:
                     "Data you want to extract",
                     ("Table and Image", "Table", "Image", "Recovery"),
                 )
-                uploaded_file = [st.file_uploader(model.upload_button_text_desc,
+                uploaded_file = st.file_uploader(model.upload_button_text_desc,
                                                  type=['png', 'jpg', 'jpeg', 'pdf'], accept_multiple_files=True,
                                                  help=model.upload_help,
                                                  key="uploaded_file" 
-                                                )]
+                                                )
                 submitted = st.form_submit_button(model.upload_button_text)
                 reset = st.form_submit_button("Reset")
                 

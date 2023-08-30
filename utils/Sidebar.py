@@ -35,7 +35,9 @@ def Sidebar(current_dir):
     # st.experimental_set_query_params(
     #     page=st.session_state.select_page
     # )
-    link = st.experimental_get_query_params()["page"][0]
+    link = st.experimental_get_query_params()
     if link is not None:
         link = "🔥Documentation"
+    else:
+        link = st.experimental_get_query_params()["page"][0]
     page_names_to_funcs[link](sidebar_container)

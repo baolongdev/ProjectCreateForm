@@ -46,6 +46,7 @@ class ExtractionDocument():
             show_log=False, 
             use_angle_cls=True,
             rec=False,
+            use_gpu=False, 
             lang='en'
         )
     

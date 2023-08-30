@@ -34,6 +34,8 @@ def Sidebar(current_dir):
         st.experimental_set_query_params(
             page=st.session_state.select_page
         )
+        st.toast(f"Welcom to {st.session_state.select_page}")
+        st.balloons()
         pass
     
     if "index_page" not in st.session_state:

@@ -125,6 +125,12 @@ class DocumentProcess:
         self.convert_to_label = None
     
     def viewExtractDocument(self, model, sidebar):
+        st.session_state.pop('uploaded_file_image', None)
+        st.session_state.pop('rects_file', None)
+        st.session_state.pop('index_select', None)
+        st.session_state.pop('data_result', None)
+        st.session_state.pop('img_file', None)
+        st.session_state.pop('check', None)
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
         labels_list = labels_json["labels"]
@@ -148,13 +154,22 @@ class DocumentProcess:
                     "Data you want to extract",
                     ("Table and Image", "Table", "Image", "Recovery"),
                 )
-                uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=True,
-                                                 type=['png', 'jpg', 'jpeg', 'pdf'],
+                uploaded_file = [st.file_uploader(model.upload_button_text_desc,
+                                                 type=['png', 'jpg', 'jpeg', 'pdf'], accept_multiple_files=True,
                                                  help=model.upload_help,
                                                  key="uploaded_file" 
-                                                )
+                                                )]
                 submitted = st.form_submit_button(model.upload_button_text)
+                reset = st.form_submit_button("Reset")
                 
+                if reset:
+                    st.session_state.pop('uploaded_file_image', None)
+                    st.session_state.pop('rects_file', None)
+                    st.session_state.pop('index_select', None)
+                    st.session_state.pop('data_result', None)
+                    st.session_state.pop('img_file', None)
+                    st.session_state.pop('check', None)
+                    pass
                 
                 if submitted and uploaded_file is not None:
                     with st.spinner('Wait for it...'):
@@ -209,6 +224,12 @@ class DocumentProcess:
                                     )
     
     def viewDocumentation(self, model, sidebar):
+        st.session_state.pop('uploaded_file_image', None)
+        st.session_state.pop('rects_file', None)
+        st.session_state.pop('index_select', None)
+        st.session_state.pop('data_result', None)
+        st.session_state.pop('img_file', None)
+        st.session_state.pop('check', None)
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
         labels_list = labels_json["labels"]
@@ -240,7 +261,16 @@ class DocumentProcess:
                                                  key="uploaded_file" 
                                                 )
                 submitted = st.form_submit_button(model.upload_button_text)
+                reset = st.form_submit_button("Reset")
                 
+                if reset:
+                    st.session_state.pop('uploaded_file_image', None)
+                    st.session_state.pop('rects_file', None)
+                    st.session_state.pop('index_select', None)
+                    st.session_state.pop('data_result', None)
+                    st.session_state.pop('img_file', None)
+                    st.session_state.pop('check', None)
+                    pass
                 
                 if submitted and uploaded_file is not None:
                     if name_group is "":
@@ -601,6 +631,7 @@ class DocumentProcess:
         
         count = 0
         for file in uploaded_file:
+            self.convert_to_label.set_save_folder_element(count)
             if file is not None:
                 file_name, extension = file.name.split(".")
                 extension = extension.lower()
@@ -618,6 +649,7 @@ class DocumentProcess:
                         st.toast(f"Done {count}")
                         print("Done {count}")
                         count+=1
+                        self.convert_to_label.set_save_folder_element(count)
                 if extension in ('png', 'jpg', 'jpeg'):
                     self.convert_to_label.add_label(image_data=file)
                     image = self.convert_to_label.get_data()["image"]

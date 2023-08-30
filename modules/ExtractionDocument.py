@@ -1,21 +1,24 @@
+import pathlib
+from paddleocr.ppstructure.recovery.recovery_to_doc import sorted_layout_boxes, convert_info_docx
 from paddleocr import PPStructure, save_structure_res
 from vietocr.tool.predictor import Predictor
 from vietocr.tool.config import Cfg
 from paddleocr import PaddleOCR
 from PIL import Image, ImageDraw
 import numpy as np
+import shutil
 import json
 import os
-
 class ExtractionDocument():
     def __init__(
         self,
         output="./output",
         group="",
         element="",
-        ocr = True,
-        table=True,
-        image_orientation=True,
+        ocr=False,
+        table=False,
+        recovery=False,
+        image_orientation=False,
         lang='en',
     ):
         self.save_folder = output
@@ -38,6 +41,7 @@ class ExtractionDocument():
             ocr=ocr, # Text
             table=table, # Table 
             image_orientation=image_orientation, # Image 
+            recovery=recovery,
             lang='en'
         )
         self.process_with_PaddleOCR = PaddleOCR(
@@ -252,7 +256,7 @@ class ExtractionDocument():
             "image": self.image,
             "image_raw": self.image_raw,
             "datafile": os.path.join(self.pathfile_result, self.save_folder_element, "datafile.json"),
-            "res_0": "",
+            "res_0": os.path.join(self.pathfile_result, self.save_folder_element, "res_0.txt"),
         }
         return _return
 

@@ -11,16 +11,16 @@ def customsGroup(current_dir):
     Custom_CSS(st, css__custom)
     Custom_Code(st, """
             <div class="main__title"> 
-                <h3> Documentation <h3>
+                <h3> ExtractDocument <h3>
             <div/>        
         """)
 
 
 def main(sidebar):
-    DocumentProcess().viewDocumentation(DocumentProcess.Model(), sidebar)
+    DocumentProcess().viewExtractDocument(DocumentProcess.Model(), sidebar)
     # DataReview().view(DataReview.Model(), sidebar)
 
-def Documentation(sidebar):
+def ExtractDocument(sidebar):
     current_dir = Path(".")
     sidebarConfig(sidebar)
     customsGroup(current_dir)

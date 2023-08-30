@@ -8,6 +8,7 @@ from streamlit_elements import *
 from modules import agstyler
 from unidecode import unidecode
 import streamlit as st
+from PIL import Image
 import pandas as pd
 import numpy as np
 import json
@@ -15,6 +16,7 @@ import json
 from modules.ExtractionDocument import ExtractionDocument
 from modules.GoogleForm import GoogleFormGenerator
 from modules.DocumentConverter import DocumentConverter
+from modules.modules import Custom_Code
 
 
 class DocumentProcess:
@@ -122,7 +124,91 @@ class DocumentProcess:
     def __init__(self) -> None:
         self.convert_to_label = None
     
-    def view(self, model, sidebar):
+    def viewExtractDocument(self, model, sidebar):
+        with open(model.labels_file, "r") as f:
+            labels_json = json.load(f)
+        labels_list = labels_json["labels"]
+        labels = ['']
+        for label in labels_list:
+            labels.append(label['name'])
+        model.labels = labels
+        
+        placeholder_show = st.empty()
+        
+        with sidebar:
+            st.subheader(model.subheader_1)
+            with st.expander("Option"):
+                language_select = st.selectbox(
+                    "Select Language",
+                    ("English", "Vietnamese"),
+                )
+                
+            with st.form("upload-form", clear_on_submit=True):
+                extract_select = st.selectbox(
+                    "Data you want to extract",
+                    ("Table and Image", "Table", "Image", "Recovery"),
+                )
+                uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=True,
+                                                 type=['png', 'jpg', 'jpeg', 'pdf'],
+                                                 help=model.upload_help,
+                                                 key="uploaded_file" 
+                                                )
+                submitted = st.form_submit_button(model.upload_button_text)
+                
+                
+                if submitted and uploaded_file is not None:
+                    with st.spinner('Wait for it...'):
+                        self.extract_file(model, uploaded_file, language_select, extract_select)
+                    model.set_image_file(model.get_uploaded_file_images()[model.get_index_select()])
+                    # model.set_data_result(model.get_rects_file()[model.get_index_select()]["res"])
+                    
+        if model.get_image_file() is not None:
+            docImg = model.get_image_file()
+            print(model.get_data_result())
+            with placeholder_show.container():
+                self.render_button(model, len(model.get_uploaded_file_images()))
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    st.image(docImg)
+                with col2:
+                    st.subheader("Explication")
+                    color = {
+                        "Title": "#FF0000",   # Red
+                        "List": "#00FF00",    # Green
+                        "Text": "#FFFF00",    # Yellow
+                        "Table": "#0000FF",   # Blue
+                        "Figure": "#FFA500"   # Orange
+                    }
+                    col = st.columns(5)
+                    for index, key in enumerate(color.keys()):
+                        with col[index]:
+                            st.color_picker(key, color[key], disabled=True)
+                    st.subheader("Review")
+                    datafile = model.get_rects_file()[model.get_index_select()]["datafile"]
+                    with open(datafile, 'r') as f:
+                        result = json.load(f)
+                        for item in result["words"]:
+                            if item["label"] == "item_table":
+                                df = pd.read_excel(item["link"])
+                                st.dataframe(df)
+                                with open(item["link"], 'rb') as file:
+                                    st.download_button(label=model.download_text,
+                                        data=file,
+                                        file_name="datafile.xlsx",
+                                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                        help="Download file excel"
+                                    )
+                            if item["label"] == "item_figure":
+                                st.image(Image.open(item["link"]))
+                                with open(item["link"], 'rb') as file:
+                                    st.download_button(label=model.download_text,
+                                        data=file,
+                                        file_name="datafile.jpg",
+                                        mime='image/jpeg',
+                                        help="Download file image"
+                                    )
+    
+    def viewDocumentation(self, model, sidebar):
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
         labels_list = labels_json["labels"]
@@ -173,10 +259,10 @@ class DocumentProcess:
             data_processor = DataProcessor()
             saved_state = model.get_data_result()   
             with placeholder_show.container():
-                assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
+                # assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
                 self.render_button(model, len(model.get_uploaded_file_images()))
-                mode = "transform" if assign_labels else "rect"
-                
+                # mode = "transform" if assign_labels else "rect"
+                mode = "transform"
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode)
@@ -487,4 +573,57 @@ class DocumentProcess:
             count += 1
             
                         
-                        
+    def extract_file(self, model, uploaded_file, language_select, extract_select):
+        language = {
+            "Vietnamese":"vi",
+            "English":"en"    
+        }
+        self.table = False
+        self.image = False
+        self.recovery = False
+        if extract_select == "Table and Image":
+            self.table = True
+            self.image = True
+        elif extract_select == "Table":
+            self.table = True
+        elif extract_select == "Image":
+            self.image = True
+        elif extract_select == "Recovery":
+            self.recovery = True
+        self.convert_to_label = ExtractionDocument(
+            output="assets/data/output",
+            group="ExtractionDocument",
+            table=self.table,
+            image_orientation=self.image,
+            recovery=self.recovery,
+            lang=language[language_select],
+        )
+        
+        count = 0
+        for file in uploaded_file:
+            if file is not None:
+                file_name, extension = file.name.split(".")
+                extension = extension.lower()
+                output_json = None
+                if file.type == 'application/pdf':
+                    doc = DocumentConverter()
+                    datas = doc.convert_pdf_to_images(file.read())
+                    for doc_name, doc_image in datas:
+                        self.convert_to_label.add_label(image_data=doc_image)
+                        image = self.convert_to_label.get_data()["image_raw"]
+                        datafile = self.convert_to_label.get_data()["datafile"]
+                        res = self.convert_to_label.get_data()["datafile"]
+                        model.set_uploaded_file_images(image)
+                        model.set_rects_file({"res":res, "datafile":datafile })
+                        st.toast(f"Done {count}")
+                        print("Done {count}")
+                        count+=1
+                if extension in ('png', 'jpg', 'jpeg'):
+                    self.convert_to_label.add_label(image_data=file)
+                    image = self.convert_to_label.get_data()["image"]
+                    datafile = self.convert_to_label.get_data()["datafile"]
+                    res = self.convert_to_label.get_data()["res_0"]
+                    model.set_uploaded_file_images(image)
+                    model.set_rects_file({"res":res, "datafile":datafile })
+                    st.toast(f"Done {count}")
+                    print(f"Done {count}")

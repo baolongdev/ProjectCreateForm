@@ -1,7 +1,6 @@
 import os
 from streamlit_sparrow_labeling import st_sparrow_labeling as st_labeling
 from streamlit_sparrow_labeling import DataProcessor
-from streamlit_javascript import st_javascript 
 from streamlit_elements import elements, mui, html
 from modules.agstyler import PINLEFT
 from streamlit_elements import *
@@ -12,6 +11,7 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 import json
+import shutil
 # =========================
 from modules.ExtractionDocument import ExtractionDocument
 from modules.GoogleForm import GoogleFormGenerator
@@ -125,16 +125,7 @@ class DocumentProcess:
         self.convert_to_label = None
     
     def viewExtractDocument(self, model, sidebar):
-        with open(model.labels_file, "r") as f:
-            labels_json = json.load(f)
-        labels_list = labels_json["labels"]
-        labels = ['']
-        for label in labels_list:
-            labels.append(label['name'])
-        model.labels = labels
-        
         placeholder_show = st.empty()
-        
         with sidebar:
             st.subheader(model.subheader_1)
             with st.expander("Option"):
@@ -146,8 +137,9 @@ class DocumentProcess:
             with st.form("upload-form", clear_on_submit=True):
                 extract_select = st.selectbox(
                     "Data you want to extract",
-                    ("Table and Image", "Table", "Image", "Recovery"),
+                    ("Table and Image", ""),
                 )
+                include_text = st.checkbox("include text")
                 uploaded_file = st.file_uploader(model.upload_button_text_desc,
                                                  type=['png', 'jpg', 'jpeg', 'pdf'], accept_multiple_files=True,
                                                  help=model.upload_help,
@@ -163,13 +155,16 @@ class DocumentProcess:
                     st.session_state.pop('data_result', None)
                     st.session_state.pop('img_file', None)
                     st.session_state.pop('check', None)
+                    if os.path.exists("assets/data/output/ExtractionDocument"):
+                        shutil.rmtree("assets/data/output/ExtractionDocument")
                     pass
                 
                 if submitted and uploaded_file is not None:
+                    if os.path.exists("assets/data/output/ExtractionDocument"):
+                        shutil.rmtree("assets/data/output/ExtractionDocument")
                     with st.spinner('Wait for it...'):
-                        self.extract_file(model, uploaded_file, language_select, extract_select)
-                    model.set_image_file(model.get_uploaded_file_images()[model.get_index_select()])
-                    # model.set_data_result(model.get_rects_file()[model.get_index_select()]["res"])
+                        self.extract_file(model, uploaded_file, language_select)
+                        model.set_image_file(model.get_uploaded_file_images()[model.get_index_select()])
                     
         if model.get_image_file() is not None:
             docImg = model.get_image_file()
@@ -194,29 +189,79 @@ class DocumentProcess:
                             st.color_picker(key, color[key], disabled=True)
                     st.subheader("Review")
                     datafile = model.get_rects_file()[model.get_index_select()]["datafile"]
+                    res = model.get_rects_file()[model.get_index_select()]["res"]
+                    list_table = []
+                    list_image = []
+                    list_text = []
                     with open(datafile, 'r') as f:
                         result = json.load(f)
                         for item in result["words"]:
                             if item["label"] == "item_table":
-                                df = pd.read_excel(item["link"])
-                                st.dataframe(df)
-                                with open(item["link"], 'rb') as file:
-                                    st.download_button(label=model.download_text,
-                                        data=file,
-                                        file_name="datafile.xlsx",
-                                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                        help="Download file excel"
-                                    )
+                                list_table.append(item["link"])
                             if item["label"] == "item_figure":
-                                st.image(Image.open(item["link"]))
-                                with open(item["link"], 'rb') as file:
-                                    st.download_button(label=model.download_text,
-                                        data=file,
-                                        file_name="datafile.jpg",
-                                        mime='image/jpeg',
-                                        help="Download file image"
-                                    )
-    
+                                list_image.append(item["link"])
+                    with st.status("Processing data..."):
+                        st.title("Table")
+                        for item in list_table:
+                            df = pd.read_excel(item)
+                            st.dataframe(df)
+                            with open(item, 'rb') as file:
+                                st.download_button(label=model.download_text,
+                                    data=file,
+                                    file_name="datafile.xlsx",
+                                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                    help="Download file excel"
+                                )
+                            st.divider()
+                        st.title("Image")
+                        for item in list_image:
+                            st.image(Image.open(item))
+                            with open(item, 'rb') as file:
+                                st.download_button(label=model.download_text,
+                                    data=file,
+                                    file_name="datafile.jpg",
+                                    mime='image/jpeg',
+                                    help="Download file image"
+                                )
+                            st.divider()
+                        with open(res, 'r') as f:
+                            result = []
+                            for item in f.readlines():
+                                result.append(json.loads(item))
+                        st.title("Text")
+                        if include_text:
+                            import tempfile
+                            img = docImg
+                            if language_select == "Vietnamese":
+                                from vietocr.tool.predictor import Predictor
+                                from vietocr.tool.config import Cfg
+                                config_vietocr = Cfg.load_config_from_name('vgg_transformer')
+                                config_vietocr['cnn']['pretrained']=False
+                                config_vietocr['device'] = 'cpu'
+                                detector = Predictor(config_vietocr).predict                                    
+                                for item in result:
+                                    if item["type"] in ["text", "title"]:
+                                        cropped_img = img.crop(item["bbox"]) 
+                                        text = detector(cropped_img) 
+                                        st.image(cropped_img)
+                                        st.write(text)
+                            else:
+                                from paddleocr import PaddleOCR
+                                temp_image_dir = tempfile.TemporaryDirectory()
+                                detector = PaddleOCR(use_angle_cls=True, lang='en').ocr
+                                count_key = 0
+                                for item in result:
+                                    if item["type"] in ["text", "title"]:
+                                        cropped_img = img.crop(item["bbox"]) 
+                                        with tempfile.NamedTemporaryFile(suffix=".png", dir=temp_image_dir.name, delete=False) as temp_img:
+                                            cropped_img.save(temp_img, format="PNG")
+                                            temp_img.close()
+                                        st.image(cropped_img)
+                                        result_convert = detector(temp_img.name, cls=True) 
+                                        txts = [item[1][0] for region_set in result_convert for item in region_set]
+                                        st.text_area("Text", ''.join(txts), label_visibility="hidden")                           
+                        
+                            
     def viewDocumentation(self, model, sidebar):
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
@@ -532,7 +577,7 @@ class DocumentProcess:
             model.set_index_select(page - 1)        
             index = model.get_index_select()
             model.set_image_file(model.get_uploaded_file_images()[index])
-            model.set_data_result(model.get_rects_file()[index])
+            # model.set_data_result(model.get_rects_file()[index]["res"])
     
     
     def render_button(self, model, count):
@@ -579,6 +624,7 @@ class DocumentProcess:
                         st.toast(f"Done {count}")
                         print("Done {count}")
                         count+=1
+                        self.convert_to_label.set_save_folder_group(name_group)
                 if extension in ('png', 'jpg', 'jpeg'):
                     self.convert_to_label.add_label_with_PaddleOCR(image_data=file)
                     image = self.convert_to_label.get_data()["image_raw"]
@@ -588,35 +634,22 @@ class DocumentProcess:
                     model.set_rects_file(datafile)
                     st.toast(f"Done {count}")
                     print(f"Done {count}")
-            count += 1
+                    count += 1
             
                         
-    def extract_file(self, model, uploaded_file, language_select, extract_select):
+    def extract_file(self, model, uploaded_file, language_select):
         language = {
             "Vietnamese":"vi",
             "English":"en"    
         }
-        self.table = False
-        self.image = False
         self.recovery = False
-        if extract_select == "Table and Image":
-            self.table = True
-            self.image = True
-        elif extract_select == "Table":
-            self.table = True
-        elif extract_select == "Image":
-            self.image = True
-        elif extract_select == "Recovery":
-            self.recovery = True
         self.convert_to_label = ExtractionDocument(
             output="assets/data/output",
             group="ExtractionDocument",
-            table=self.table,
-            image_orientation=self.image,
-            recovery=self.recovery,
+            table=True,
+            image_orientation=True,
             lang=language[language_select],
         )
-        
         count = 0
         for file in uploaded_file:
             self.convert_to_label.set_save_folder_element(count)
@@ -629,7 +662,7 @@ class DocumentProcess:
                     datas = doc.convert_pdf_to_images(file.read())
                     for doc_name, doc_image in datas:
                         self.convert_to_label.add_label(image_data=doc_image)
-                        image = self.convert_to_label.get_data()["image_raw"]
+                        image = self.convert_to_label.get_data()["image"]
                         datafile = self.convert_to_label.get_data()["datafile"]
                         res = self.convert_to_label.get_data()["datafile"]
                         model.set_uploaded_file_images(image)
@@ -647,3 +680,4 @@ class DocumentProcess:
                     model.set_rects_file({"res":res, "datafile":datafile })
                     st.toast(f"Done {count}")
                     print(f"Done {count}")
+                    count+=1

@@ -15,7 +15,7 @@ def customsGroup(current_dir):
             <div/>        
         """)
 
-
+@st.cache_data
 def main(sidebar):
     DocumentProcess().view(DocumentProcess.Model(), sidebar)
     # DataReview().view(DataReview.Model(), sidebar)

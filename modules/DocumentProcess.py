@@ -125,12 +125,6 @@ class DocumentProcess:
         self.convert_to_label = None
     
     def viewExtractDocument(self, model, sidebar):
-        st.session_state.pop('uploaded_file_image', None)
-        st.session_state.pop('rects_file', None)
-        st.session_state.pop('index_select', None)
-        st.session_state.pop('data_result', None)
-        st.session_state.pop('img_file', None)
-        st.session_state.pop('check', None)
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
         labels_list = labels_json["labels"]
@@ -224,12 +218,6 @@ class DocumentProcess:
                                     )
     
     def viewDocumentation(self, model, sidebar):
-        st.session_state.pop('uploaded_file_image', None)
-        st.session_state.pop('rects_file', None)
-        st.session_state.pop('index_select', None)
-        st.session_state.pop('data_result', None)
-        st.session_state.pop('img_file', None)
-        st.session_state.pop('check', None)
         with open(model.labels_file, "r") as f:
             labels_json = json.load(f)
         labels_list = labels_json["labels"]

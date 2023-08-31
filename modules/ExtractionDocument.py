@@ -3,9 +3,12 @@ from vietocr.tool.predictor import Predictor
 from vietocr.tool.config import Cfg
 from paddleocr import PaddleOCR
 from PIL import Image, ImageDraw
+import streamlit as st
 import numpy as np
 import json
 import os
+
+
 class ExtractionDocument():
     def __init__(
         self,
@@ -28,27 +31,42 @@ class ExtractionDocument():
         self.image_raw = None
         self.lang = lang
         if self.lang == "vi":
-            self.config_vietocr = Cfg.load_config_from_name('vgg_transformer')
-            self.config_vietocr['cnn']['pretrained']=False
-            self.config_vietocr['device'] = 'cpu'
-            self.detector_vietocr = Predictor(self.config_vietocr)
+            self.detector_vietocr = self.load_vietocr()
         
-        self.process = PPStructure(
-            show_log=False, 
-            ocr=ocr, # Text
-            table=table, # Table 
-            image_orientation=image_orientation, # Image 
-            recovery=True,
-            # recovery=recovery,
-            lang='en'
-        )
-        self.process_with_PaddleOCR = PaddleOCR(
+        self.process = self.load_process(ocr, table, image_orientation)
+                
+        self.process_with_PaddleOCR = self.load_process_with_PaddleOCR(ocr, table, image_orientation)
+        
+    st.cache_data
+    def load_vietocr(self):
+        config_vietocr = Cfg.load_config_from_name('vgg_transformer')
+        config_vietocr['cnn']['pretrained']=False
+        config_vietocr['device'] = 'cpu'
+        render = Predictor(config_vietocr)
+        return render
+    
+    st.cache_data
+    def load_process_with_PaddleOCR(self, ocr, table, image_orientation):
+        render = PaddleOCR(
             show_log=False, 
             use_angle_cls=True,
             rec=False,
             use_gpu=False, 
             lang='en'
         )
+        return render
+    
+    st.cache_data
+    def load_process(self, ocr, table, image_orientation):
+        render = PPStructure(
+            show_log=False, 
+            ocr=ocr, # Text
+            table=table, # Table 
+            image_orientation=image_orientation, # Image 
+            recovery=True,
+            lang='en'
+        )
+        return render
     
     
     def save_result(self):

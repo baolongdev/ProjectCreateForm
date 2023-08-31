@@ -123,7 +123,7 @@ class DocumentProcess:
     
     def __init__(self) -> None:
         self.convert_to_label = None
-    
+        self.check = False
     def viewExtractDocument(self, model, sidebar):
         placeholder_show = st.empty()
         with sidebar:
@@ -155,6 +155,7 @@ class DocumentProcess:
                     st.session_state.pop('data_result', None)
                     st.session_state.pop('img_file', None)
                     st.session_state.pop('check', None)
+                    self.check = False
                     if os.path.exists("assets/data/output/ExtractionDocument"):
                         shutil.rmtree("assets/data/output/ExtractionDocument")
                     pass
@@ -190,6 +191,7 @@ class DocumentProcess:
                     st.subheader("Review")
                     datafile = model.get_rects_file()[model.get_index_select()]["datafile"]
                     res = model.get_rects_file()[model.get_index_select()]["res"]
+                    print(res)
                     list_table = []
                     list_image = []
                     list_text = []
@@ -240,7 +242,7 @@ class DocumentProcess:
                                 config_vietocr['device'] = 'cpu'
                                 detector = Predictor(config_vietocr).predict                                    
                                 for item in result:
-                                    if item["type"] in ["text", "title"]:
+                                    if item["type"] in ["text", "title", "list"]:
                                         cropped_img = img.crop(item["bbox"]) 
                                         text = detector(cropped_img) 
                                         st.image(cropped_img)
@@ -251,7 +253,7 @@ class DocumentProcess:
                                 detector = PaddleOCR(use_angle_cls=True, lang='en').ocr
                                 count_key = 0
                                 for item in result:
-                                    if item["type"] in ["text", "title"]:
+                                    if item["type"] in ["text", "title", "list"]:
                                         cropped_img = img.crop(item["bbox"]) 
                                         with tempfile.NamedTemporaryFile(suffix=".png", dir=temp_image_dir.name, delete=False) as temp_img:
                                             cropped_img.save(temp_img, format="PNG")
@@ -303,6 +305,7 @@ class DocumentProcess:
                     st.session_state.pop('data_result', None)
                     st.session_state.pop('img_file', None)
                     st.session_state.pop('check', None)
+                    self.check = False
                     pass
                 
                 if submitted and uploaded_file is not None:
@@ -316,7 +319,7 @@ class DocumentProcess:
                     index = model.get_index_select()
                     model.set_image_file(model.get_uploaded_file_images()[index])
                     model.set_data_result(model.get_rects_file()[index])
-            
+                    self.check = True
         if model.get_image_file() is not None:
             docImg = model.get_image_file()
             data_processor = DataProcessor()
@@ -328,6 +331,7 @@ class DocumentProcess:
                 mode = "transform"
                 col1, col2 = st.columns([1, 1])
                 with col1:
+                    self.check = True
                     result_rects = self.render_doc(model, docImg, saved_state, mode)
                 with col2:
                     self.render_btn_createForm(model, createform)
@@ -577,7 +581,10 @@ class DocumentProcess:
             model.set_index_select(page - 1)        
             index = model.get_index_select()
             model.set_image_file(model.get_uploaded_file_images()[index])
-            # model.set_data_result(model.get_rects_file()[index]["res"])
+            print("hello")
+            if self.check:
+                print("hello")
+                model.set_data_result(model.get_rects_file()[index])
     
     
     def render_button(self, model, count):
@@ -624,7 +631,7 @@ class DocumentProcess:
                         st.toast(f"Done {count}")
                         print("Done {count}")
                         count+=1
-                        self.convert_to_label.set_save_folder_group(name_group)
+                        self.convert_to_label.set_save_folder_element(name_group)
                 if extension in ('png', 'jpg', 'jpeg'):
                     self.convert_to_label.add_label_with_PaddleOCR(image_data=file)
                     image = self.convert_to_label.get_data()["image_raw"]
@@ -664,7 +671,7 @@ class DocumentProcess:
                         self.convert_to_label.add_label(image_data=doc_image)
                         image = self.convert_to_label.get_data()["image"]
                         datafile = self.convert_to_label.get_data()["datafile"]
-                        res = self.convert_to_label.get_data()["datafile"]
+                        res = self.convert_to_label.get_data()["res_0"]
                         model.set_uploaded_file_images(image)
                         model.set_rects_file({"res":res, "datafile":datafile })
                         st.toast(f"Done {count}")

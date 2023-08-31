@@ -1,0 +1,35 @@
+{
+    "meta": {
+        "version": "v1.0",
+        "split": "-",
+        "image_id": 0,
+        "image_size": {
+            "width": 502,
+            "height": 367
+        }
+    },
+    "words": [
+        {
+            "rect": {
+                "x1": 1,
+                "y1": 16,
+                "x2": 501,
+                "y2": 364
+            },
+            "value": "table",
+            "label": "item_table",
+            "link": "assets/data/output\\ExtractionDocument\\0\\[1, 16, 501, 364]_0.xlsx"
+        },
+        {
+            "rect": {
+                "x1": 2,
+                "y1": 0,
+                "x2": 501,
+                "y2": 365
+            },
+            "value": "figure",
+            "label": "item_figure",
+            "link": "assets/data/output\\ExtractionDocument\\0\\[2, 0, 501, 365]_0.jpg"
+        }
+    ]
+}

@@ -1,3 +1,4 @@
+pip>=23.2.1
 deta>=1.2.0
 google_api_python_client>=2.97.0
 httplib2>=0.22.0

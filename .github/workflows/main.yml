@@ -16,4 +16,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://Amrrs:$HF_TOKEN@huggingface.co/spaces/Amrrs/blong12/project-create-form main
+        run: git push https://$HF_TOKEN@huggingface.co/spaces/blong12/project-create-form main

@@ -7,7 +7,7 @@ from streamlit_elements import *
 from modules import agstyler
 from unidecode import unidecode
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 import pandas as pd
 import numpy as np
 import json
@@ -17,7 +17,7 @@ from modules.ExtractionDocument import ExtractionDocument
 from modules.GoogleForm import GoogleFormGenerator
 from modules.DocumentConverter import DocumentConverter
 from modules.modules import Custom_Code
-
+import cv2
 
 class DocumentProcess:
     class Model:
@@ -332,10 +332,10 @@ class DocumentProcess:
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     self.check = True
-                    result_rects = self.render_doc(model, docImg, saved_state, mode)
+                    self.render_doc(model, docImg, saved_state, mode)
                 with col2:
                     self.render_btn_createForm(model, createform)
-                    self.render_form(model, result_rects, data_processor)
+                    self.render_form(model, saved_state, data_processor)
                     
     
     def render_form(self, model, result_rects, data_processor):
@@ -359,7 +359,7 @@ class DocumentProcess:
                     self.render_form_view(model, result_rects, data_processor, (submit, grouping, swap, delete, auto_Label))                      
                     
                     
-                if len(result_rects.rects_data['words']) == 0:
+                if len(result_rects['words']) == 0:
                     st.toast(model.no_annotation_mapping)
                     return
                 else:
@@ -375,7 +375,7 @@ class DocumentProcess:
     def render_form_view(self, model, result_rects, data_processor, btn_group):
         labels = model.labels
         if result_rects is not None:
-            words = result_rects.rects_data['words']
+            words = result_rects['words']
             data = [{'id': i, 'value': rect['value'], 'label': rect['label'].split(":", 1)[-1]} for i, rect in enumerate(words)]
             df = pd.DataFrame(data)
             formatter = {
@@ -385,7 +385,6 @@ class DocumentProcess:
             }
             go = {
                 'rowClassRules': {
-                    'row-selected': f'data.id === {result_rects.current_rect_index}',
                     'item-title': 'data.label === "item_title"',
                     'item-question': 'data.label === "item_question"',
                     'item-answer': 'data.label === "item_answer"',
@@ -395,7 +394,6 @@ class DocumentProcess:
             }
             red_light = "red"
             css = {
-                '.row-selected': {'background-color': f'{red_light} !important'},
                 '.item-title': {'background-color': '#A26EA1 !important'},
                 '.item-question': {'background-color': '#FEA5AD !important'},
                 '.item-answer': {'background-color': '#AFEEEE !important'},
@@ -420,8 +418,8 @@ class DocumentProcess:
                 for i, rect in enumerate(words):
                     value = data[i][1]
                     label = data[i][2]
-                    result_rects.rects_data['words'][i]['value'] = value
-                    result_rects.rects_data['words'][i]['label'] = label
+                    result_rects['words'][i]['value'] = value
+                    result_rects['words'][i]['label'] = label
             elif grouping:
                 rows = response['selected_rows']
                 if len(rows) > 1:
@@ -458,14 +456,14 @@ class DocumentProcess:
                         break
                     del words[row['id']]
                     i += 1
-                result_rects.rects_data['words'] = words
+                result_rects['words'] = words
             elif swap:
                 rows = response['selected_rows']
                 if len(rows) == 2:
                     index1 = rows[0]['id']
                     index2 = rows[1]['id']
                     words[index1]['value'], words[index2]['value'] = words[index2]['value'], words[index1]['value']
-                    result_rects.rects_data['words'] = words
+                    result_rects['words'] = words
                 else:
                     st.error("Please select exactly two words to swap.")     
             elif delete:
@@ -473,7 +471,7 @@ class DocumentProcess:
                 if len(rows) > 0:
                     selected_ids = set(row['id'] for row in rows)
                     words = [word for i, word in enumerate(words) if i not in selected_ids]
-                    result_rects.rects_data['words'] = words
+                    result_rects['words'] = words
                 else:
                     st.error("Please select at least one word to delete.")
             elif auto_Label:
@@ -492,7 +490,7 @@ class DocumentProcess:
                         item["label"] = model.labels[5]
                     pass
                 
-                result_rects.rects_data['words'] = words
+                result_rects['words'] = words
                 # id=1 | item_title
                 # id=2 | item_question
                 # id=3 | item_answer
@@ -501,13 +499,13 @@ class DocumentProcess:
                 # model.labels[]
             
             if submit or grouping or swap or delete or auto_Label:
-                for word in result_rects.rects_data['words']:
+                for word in result_rects['words']:
                     if len(word['value']) > 1000:
                         st.error(model.error_text)
                         return
 
                 with open(model.get_rects_file()[model.get_index_select()], "w") as f:
-                    json.dump(result_rects.rects_data, f)
+                    json.dump(result_rects, f)
         
                 model.set_data_result(model.get_rects_file()[model.get_index_select()])
                 st.experimental_rerun()
@@ -554,25 +552,32 @@ class DocumentProcess:
                         st.markdown(f"Link form: [Link 😘]({form_generator.get_link_form()})" )
     
     
-    def render_doc(self, model, docImg, saved_state, mode, height = 905, width = 640):
+    def render_doc(self, model, docImg, saved_state, mode):
+        def draw_bbox(image, bbox, color="black"):
+            draw = ImageDraw.Draw(image)
+            x1, y1, x2, y2 = bbox
+            expanded_bbox = [x1 - 3, y1 - 3, x2 + 3, y2 + 3]
+            draw.rectangle(expanded_bbox, outline=color, width=5)
+        label_colors = {
+            "item_title": (162, 110, 161),    # Color for 'item-title' label (#A26EA1)
+            "item_question": (254, 165, 173),  # Color for 'item-question' label (#FEA5AD)
+            "item_answer": (175, 238, 238),   # Color for 'item-answer' label (#AFEEEE)
+            "item_right-answer": (203, 255, 169),  # Color for 'item-right-answer' label (#CBFFA9)
+            "item_ignore": (253, 253, 253),   # Color for 'item-ignore' label (#FDFDFD)
+        }
+        if not isinstance(docImg, Image.Image):
+            img = Image.fromarray(docImg)
+        else:
+            img_copy = docImg.copy()
+        for word_info in saved_state["words"]:
+            rect = word_info["rect"]
+            label = word_info["label"]
+            background_color = label_colors.get(label, (0, 0, 0))
+            x1, y1, x2, y2 = rect["x1"], rect["y1"], rect["x2"], rect["y2"]
+            draw_bbox(img_copy, (x1, y1, x2, y2), color=background_color)
+        
         with st.container():
-            result_rects = st_labeling(
-                fill_color = "rgba(0, 151, 255, 0.3)",
-                stroke_width = 2,
-                stroke_color = "rgba(0, 50, 255, 0.7)",
-                background_image = docImg,
-                initial_rects = saved_state,
-                height = height,
-                width = width,
-                drawing_mode = mode,
-                display_toolbar = True,
-                update_streamlit = True,
-                doc_height=3509,
-                doc_width=2480,
-                # image_rescale = True,
-                key="doc_annotation",               
-            )
-            return result_rects
+            st.image(np.array(img_copy), use_column_width=True, caption="Document with Bounding Boxes")
     
 
     def handChange(self, event, page, model):
@@ -581,9 +586,7 @@ class DocumentProcess:
             model.set_index_select(page - 1)        
             index = model.get_index_select()
             model.set_image_file(model.get_uploaded_file_images()[index])
-            print("hello")
             if self.check:
-                print("hello")
                 model.set_data_result(model.get_rects_file()[index])
     
     
@@ -625,18 +628,16 @@ class DocumentProcess:
                         self.convert_to_label.add_label_with_PaddleOCR(image_data=doc_image)
                         image = self.convert_to_label.get_data()["image_raw"]
                         datafile = self.convert_to_label.get_data()["datafile"]
-                        # res_0 = self.convert_to_label.get_data()["res_0"]
                         model.set_uploaded_file_images(image)
                         model.set_rects_file(datafile)
                         st.toast(f"Done {count}")
-                        print("Done {count}")
+                        print(f"Done {count}")
                         count+=1
                         self.convert_to_label.set_save_folder_element(name_group)
                 if extension in ('png', 'jpg', 'jpeg'):
                     self.convert_to_label.add_label_with_PaddleOCR(image_data=file)
                     image = self.convert_to_label.get_data()["image_raw"]
                     datafile = self.convert_to_label.get_data()["datafile"]
-                    # res_0 = self.convert_to_label.get_data()["res_0"]
                     model.set_uploaded_file_images(image)
                     model.set_rects_file(datafile)
                     st.toast(f"Done {count}")
@@ -675,7 +676,7 @@ class DocumentProcess:
                         model.set_uploaded_file_images(image)
                         model.set_rects_file({"res":res, "datafile":datafile })
                         st.toast(f"Done {count}")
-                        print("Done {count}")
+                        print(f"Done {count}")
                         count+=1
                         self.convert_to_label.set_save_folder_element(count)
                 if extension in ('png', 'jpg', 'jpeg'):

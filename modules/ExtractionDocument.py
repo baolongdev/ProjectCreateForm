@@ -1,7 +1,7 @@
+from paddleocr import PaddleOCR
 from paddleocr import PPStructure, save_structure_res
 from vietocr.tool.predictor import Predictor
 from vietocr.tool.config import Cfg
-from paddleocr import PaddleOCR
 from PIL import Image, ImageDraw
 import streamlit as st
 import numpy as np
